@@ -21,6 +21,14 @@ let row2 = [2, 2, 2, 4];
 let row3 = [2, 4, 2, 2];
 let row4 = [4, 4, 4, 2];
 
+const handleKey = () => {
+  //key를 받아 어느 방향인지 리턴
+};
+
+const handleArray = () => {
+  //주어진 방향으로 행렬을 바꿈
+};
+
 const check = (direction) => {
   const rowArray = [row1, row2, row3, row4];
   const newRow1 = [];
@@ -165,12 +173,56 @@ const check = (direction) => {
   }
 };
 
-const handleRender = () => {
+const checkAnimation = (rowArray) => {
+  const changeableArray = rowArray;
+  const returnRow1 = [];
+  const returnRow2 = [];
+  const returnRow3 = [];
+  const returnRow4 = [];
+};
+
+const handleZero = () => {
+  // 각 방향으로 정렬했을때 몇칸 가야하는지 확인
+};
+
+const handleAnimation = () => {
+  handleArray();
+  check("down"); // 각 타일이 몇칸가야하는지 확인(합쳐지는 경우)
+  handleArray(); // 원래대로
+  handleZero(); // 각 방향으로 정렬했을때 몇칸 가야하는지 확인
+  //각 타일마다 이동해야 하는 방향과 길이를 css의 형태로 전달
+};
+
+const handleCalc = () => {
+  //각 타일의 합을 계산한 뒤 result에 추가
+};
+
+const findZero = () => {
+  //array에서 0인 값을 찾아 index 반환
+};
+
+const handleNewTile = () => {
+  findZero();
+  //이중 랜덤한 한 타일을 선택하여 2또는 4 타일을 추가
+  //타일추가하는 애니메이션 css형태로 전달
+};
+
+const checkEnd = () => {
+  findZero();
+  //만약 빈 array라면
+  check("up");
+  check("down");
+  check("left");
   check("right");
-  console.log(row1);
-  console.log(row2);
-  console.log(row3);
-  console.log(row4);
+  //이때 그럼에도 변하지 않는다면 game End출력
+};
+
+const handleRender = () => {
+  handleKey();
+  handleAnimation();
+  handleCalc();
+  handleNewTile();
+  checkEnd();
 };
 
 Btn.addEventListener("click", handleRender);
