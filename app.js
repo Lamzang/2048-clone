@@ -19,11 +19,12 @@ const leftBtn = document.querySelector("#leftBtn");
 const rightBtn = document.querySelector("#rightBtn");
 const downBtn = document.querySelector("#downBtn");
 const result = document.querySelector("h1");
+const resetBtn = document.querySelector("#resetBtn");
 
 let row1 = [0, 2, 0, 2];
 let row2 = [0, 0, 0, 0];
 let row3 = [0, 0, 0, 0];
-let row4 = [0, 2, 0, 0];
+let row4 = [0, 0, 0, 0];
 
 const sumTile = (direction) => {
   const rowArray = [row1, row2, row3, row4];
@@ -63,10 +64,7 @@ const sumTile = (direction) => {
           newRow4.push(row4[i]);
         }
       }
-      row1 = newRow1;
-      row2 = newRow2;
-      row3 = newRow3;
-      row4 = newRow4;
+      return [newRow1, newRow2, newRow3, newRow4];
       break;
 
     case "down":
@@ -98,11 +96,9 @@ const sumTile = (direction) => {
           newRow1.push(row1[i]);
         }
       }
-      row1 = newRow1;
-      row2 = newRow2;
-      row3 = newRow3;
-      row4 = newRow4;
+      return [newRow1, newRow2, newRow3, newRow4];
       break;
+
     case "left":
       rowArray.forEach((arr, index) => {
         if (arr[0] === arr[1]) {
@@ -132,10 +128,7 @@ const sumTile = (direction) => {
           newRowArray[index].push(arr[3]);
         }
       });
-      row1 = newRow1;
-      row2 = newRow2;
-      row3 = newRow3;
-      row4 = newRow4;
+      return [newRow1, newRow2, newRow3, newRow4];
       break;
     case "right":
       rowArray.forEach((arr, index) => {
@@ -166,10 +159,12 @@ const sumTile = (direction) => {
           newRowArray[index].push(arr[0]);
         }
       });
-      row1 = newRow1.reverse();
-      row2 = newRow2.reverse();
-      row3 = newRow3.reverse();
-      row4 = newRow4.reverse();
+      return [
+        newRow1.reverse(),
+        newRow2.reverse(),
+        newRow3.reverse(),
+        newRow4.reverse(),
+      ];
       break;
   }
 };
@@ -242,9 +237,16 @@ const handleZero = (direction) => {
 };
 
 const handleAnimation = (direction) => {
+  const prevTiles = [row1, row2, row3, row4];
   handleZero(direction); //타일을 합칠때 0을 제외하기
-  sumTile(direction); // 방향에 맞게 타일 합치기
-  handleZero(direction); // 방향에 맞게 0이동시키기
+  const sumTiles = sumTile(direction); // 방향에 맞게 타일 합치기
+  if (JSON.stringify(prevTiles) === JSON.stringify(sumTiles)) {
+    console.log("same");
+  } else {
+    [row1, row2, row3, row4] = sumTiles;
+    handleZero(direction); // 방향에 맞게 0이동시키기
+    handleNewTile();
+  }
 };
 
 const handleCalc = () => {
@@ -303,16 +305,6 @@ const handleNewTile = () => {
   //타일추가하는 애니메이션 css형태로 전달
 };
 
-const checkEnd = () => {
-  findZero();
-  //만약 빈 array라면
-  check("up");
-  check("down");
-  check("left");
-  check("right");
-  //이때 그럼에도 변하지 않는다면 game End출력
-};
-
 const renderTile = () => {
   [box1.innerText, box2.innerText, box3.innerText, box4.innerText] = row1;
   [box5.innerText, box6.innerText, box7.innerText, box8.innerText] = row2;
@@ -320,11 +312,41 @@ const renderTile = () => {
   [box13.innerText, box14.innerText, box15.innerText, box16.innerText] = row4;
 };
 
+const isGameOver = () => {
+  handleZero("up");
+  const upTiles = sumTile("up");
+  handleZero("left");
+  const leftTiles = sumTile("left");
+  handleZero("right");
+  const rightTiles = sumTile("right");
+  handleZero("down");
+  const downTiles = sumTile("down");
+  if (
+    JSON.stringify(upTiles) === JSON.stringify(leftTiles) &&
+    JSON.stringify(upTiles) === JSON.stringify(downTiles) &&
+    JSON.stringify(upTiles) == JSON.stringify(rightTiles)
+  ) {
+    resetBtn.classList.remove("hidden");
+    result.innerText += " : GameOver";
+    console.log("gameover");
+  }
+};
+
+const isGameWin = () => {
+  for (let i = 0; i < 4; i++) {
+    if (row1[i] === 8 || row2[i] === 8 || row3[i] === 8 || row4[i] === 8) {
+      resetBtn.classList.remove("hidden");
+      console.log("gameWin");
+      result.innerText += ": Game Win";
+    }
+  }
+};
+
 const addAndCalc = () => {
-  handleNewTile();
   handleCalc();
   renderTile();
-  //checkEnd();
+  isGameOver();
+  isGameWin();
 };
 
 const handleRenderUp = () => {
@@ -343,10 +365,34 @@ const handleRenderDown = () => {
   handleAnimation("down");
   addAndCalc();
 };
+const handleReset = () => {
+  result.innerText = 0;
+  row1 = [0, 0, 0, 0];
+  row2 = [0, 0, 0, 0];
+  row3 = [0, 0, 0, 0];
+  row4 = [0, 0, 0, 0];
+  handleNewTile();
+  renderTile();
+  resetBtn.classList.add("hidden");
+};
 
 upBtn.addEventListener("click", handleRenderUp);
 leftBtn.addEventListener("click", handleRenderLeft);
 rightBtn.addEventListener("click", handleRenderRight);
 downBtn.addEventListener("click", handleRenderDown);
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowUp") {
+    handleRenderUp();
+  } else if (e.key === "ArrowDown") {
+    handleRenderDown();
+  } else if (e.key === "ArrowLeft") {
+    handleRenderLeft();
+  } else if (e.key === "ArrowRight") {
+    handleRenderRight();
+  }
+});
+
+resetBtn.addEventListener("click", handleReset);
 
 renderTile();
